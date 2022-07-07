@@ -6,16 +6,77 @@
   <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
     <div class=" pt-3 pb-2 mb-3 border-bottom">
       <h1 class="h2 mb-4">Data Pengajuan</h1>
+      @if ($user->jabatan_id == 2)
         <a class="btn btn-primary btn-sm btn-pengajuan"><span data-feather="file-plus"></span> Tambah Pengajuan</a>
+      @endif
     </div>
     <div class="card">
       <div class="card-body">
+        @if ($user->jabatan_id == 1)
+        <table id="tbl_pengajuan_all" class="table table-striped table-hover" style="width:100%">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>NIP</th>
+              <th>Nama</th>
+              <th>Tanggal Pengajuan</th>
+              <th>Periode</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            @php
+                $no = 1;
+            @endphp
+            @foreach ($p as $data)
+              <tr>
+                <td>{{ $no++ }}</td>
+                <td>{{ $data->pegawai->nip }}</td>
+                <td>{{ $data->pegawai->nm_peg }}</td>
+                <td>{{ date_format($data->created_at, "d-F-Y") }}</td>
+                <td>{{ $data->periode }}</td>
+                @if ($data->status == 'Di Ajukan')
+                  <td><span class="badge bg-warning">Di Ajukan</span></td>
+                @elseif ($data->status == 'Di Proses')
+                  <td><span class="badge bg-info">Di Proses</span></td>
+                @else
+                  <td><span class="badge bg-success">Selesai</span></td>
+                @endif
+                <td>
+                  @if ($data->status == 'Di Ajukan' || $data->status == 'Di Proses')
+                    <div class="btn-group">
+                      <a class="btn btn-secondary btn-sm btn-cek" data-id="{{ $data->id }}"><span data-feather="eye"></span> Cek Berkas</a>
+                      <a href="penilaian/create/{{ $data->id }}" class="btn btn-success btn-sm"><span data-feather="file"></span> Penilaian</a>
+                    </div>
+                  @else
+                    <span class="text-danger" data-feather="x-circle"></span></a>
+                  @endif
+                </td>
+              </tr>
+            @endforeach
+          </tbody>
+          <tfoot>
+            <tr>
+              <th>No</th>
+              <th>NIP</th>
+              <th>Nama</th>
+              <th>Tanggal Pengajuan</th>
+              <th>Periode</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </tfoot>
+        </table>
+        @else
         <table id="tbl_pengajuan" class="table table-striped table-hover" style="width:100%">
           <thead>
             <tr>
               <th>No</th>
               <th>NIP</th>
               <th>Nama</th>
+              <th>Tanggal Pengajuan</th>
+              <th>Periode</th>
               <th>Status</th>
               <th>Aksi</th>
             </tr>
@@ -29,6 +90,8 @@
                 <td>{{ $no++ }}</td>
                 <td>{{ $data->pegawai->nip }}</td>
                 <td>{{ $data->pegawai->nm_peg }}</td>
+                <td>{{ date_format($data->created_at, "d-F-Y") }}</td>
+                <td>{{ $data->periode }}</td>
                 @if ($data->status == 'Di Ajukan')
                   <td><span class="badge bg-warning">Di Ajukan</span></td>
                 @elseif ($data->status == 'Di Proses')
@@ -39,7 +102,7 @@
                 <td>
                   @if ($data->status == 'Di Ajukan')
                     <div class="btn-group">
-                      <a href="pengajuan/berkas/{{ $data->berkasPengajuan->pengajuan_id }}" class="btn btn-success btn-sm" target="_blank"><span data-feather="upload"></span> Upload Berkas</a>
+                      <a href="pengajuan/berkas/{{ $data->berkasPengajuan->pengajuan_id }}" class="btn btn-success btn-sm" ><span data-feather="upload"></span> Upload Berkas</a>
                     </div>
                   @elseif ($data->status == 'Di Proses')
                     <div class="btn-group">
@@ -47,7 +110,7 @@
                     </div>
                   @else
                     <div class="btn-group">
-                      <a href="pengajuan/berkas/{{ $data->berkasPengajuan->pengajuan_id }}" class="btn btn-success btn-sm" target="_blank"><span data-feather="printer"></span> Cetak</a>
+                      <a href="saw/print/{{ $data->penilaian->id }}" class="btn btn-success btn-sm" target="_blank"><span data-feather="printer"></span> Cetak</a>
                     </div>
                   @endif
                 </td>
@@ -59,16 +122,20 @@
               <th>No</th>
               <th>NIP</th>
               <th>Nama</th>
+              <th>Tanggal Pengajuan</th>
+              <th>Periode</th>
               <th>Status</th>
               <th>Aksi</th>
             </tr>
           </tfoot>
         </table>
+        @endif
       </div>
     </div>
   </main>
 
-  <!-- Modal -->
+@if ($user->jabatan_id == 2)
+<!-- Modal -->
 <div class="modal fade" id="modal-pengajuan" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -105,6 +172,8 @@
     </div>
   </div>
 </div>
+@endif  
+
 
 @push('jsdashborad')
   <!-- Sweetalert2 -->
@@ -117,6 +186,13 @@
   <script>
     $(document).ready(function() {
       $('#tbl_pengajuan').DataTable({
+        responsive : true,
+        scrollX: true,
+        language: {
+                    url: '{{ asset('json/bahsaTbl.json') }}'
+                  },
+      });
+      $('#tbl_pengajuan_all').DataTable({
         responsive : true,
         scrollX: true,
         language: {
@@ -213,6 +289,19 @@
               location.reload(true);
             }
           });
+        }
+      })
+    });
+
+    /* Jika klik button cek */
+    $(document).on('click', '.btn-cek', function () {
+      let id = $(this).data('id');
+
+      $.ajax({
+        url: 'cek/'+ id +'/admin',
+        dataType: "json",
+        success: function (html) {
+          window.open('storage/'+html.cek.file);
         }
       })
     });

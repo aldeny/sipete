@@ -32,6 +32,9 @@ class UserController extends Controller
 
             if ($request->password == $user->password) {
                 $request->session()->put('userLogin', $user->id);
+                if ($user->username != 'superuser' && $user->username != 'kabad') {
+                    $request->session()->put('nip', $user->pegawai->nip);
+                }
 
                 return redirect('/dashboard');
             }

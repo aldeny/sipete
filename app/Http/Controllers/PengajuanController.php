@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 
 class PengajuanController extends Controller
 {
@@ -21,7 +22,7 @@ class PengajuanController extends Controller
     public function index()
     {
         $user = User::where('id', '=', session('userLogin'))->first();
-        $pengajuan = Pengajuan::where('pegawai_id', $user->pegawai->id)->get();
+        $pengajuan = Pengajuan::where('pegawai_id', $user->pegawai->id)->latest()->get();
         return view('pengajuan.pengajuan', [
             'user' => $user,
             'pengajuan' => $pengajuan
@@ -61,14 +62,9 @@ class PengajuanController extends Controller
                 'created_at' => date(Carbon::now())
             ]);
 
-        $persyaratan = Persyaratan::get();
-
-        foreach ($persyaratan as $p) {
-            $berkas = DB::table('berkas_pengajuans')->insert([
-                'pengajuan_id' => $id_pengajuan,
-                'persyaratan_id' => $p->id,
-            ]);
-        }
+        $berkas = DB::table('berkas_pengajuans')->insert([
+            'pengajuan_id' => $id_pengajuan,
+        ]);
 
 
         if (!$berkas) {
@@ -125,7 +121,52 @@ class PengajuanController extends Controller
     public function syarat($id)
     {
         $user = User::where('id', '=', session('userLogin'))->first();
-        $pengajuan = BerkasPengajuan::where('pengajuan_id', $id)->get();
-        return view('pengajuan.syarat', ['pengajuan' => $pengajuan, 'user' => $user]);
+        $syarat = Persyaratan::get();
+        $berkas = BerkasPengajuan::findOrFail($id);
+        return view('pengajuan.syarat', ['syarat' => $syarat, 'user' => $user, 'berkas' => $berkas]);
+    }
+
+    public function uploadBerkas(Request $request)
+    {
+        $request->validate([
+            'berkas' => 'required|mimes:pdf|max:20000'
+        ], [
+            'berkas.required' => 'Tidak boleh kosong',
+            'berkas.mimes' => 'Berkas harus .pdf',
+            'berkas.max' => 'Ukuran berkas tidak boleh lebih 2Mb',
+        ]);
+
+        $pengajuan_id = $request->id;
+        $file = $request->file('berkas');
+        $nama_file = 'Dokumen_persyaratan_' . Session::get('nip') . "_" . $file->getClientOriginalName();
+        $folder = 'upload/' . Session::get('nip');
+
+        $update_pengajuan = Pengajuan::findOrFail($pengajuan_id);
+        $update_pengajuan->status = 'Di Proses';
+        $update_pengajuan->save();
+
+        $upload = BerkasPengajuan::findOrFail($pengajuan_id);
+        $upload->file = $file->storeAs($folder, $nama_file);
+        $upload->save();
+
+        if (!$update_pengajuan) {
+            alert()->success('Berkas gagal di ajukan', 'Gagal!!')->toToast();
+            return back();
+        }
+        alert()->success('Berkas telah di ajukan', 'Berhasil!!')->toToast();
+        return redirect('pengajuan');
+    }
+
+    public function adminPengajuan()
+    {
+        $user = User::where('id', '=', session('userLogin'))->first();
+        $p_all = Pengajuan::latest()->get();
+        return view('pengajuan.pengajuan', ['user' => $user, 'p' => $p_all]);
+    }
+
+    public function cekberkas($id)
+    {
+        $cek = BerkasPengajuan::findOrFail($id);
+        return response()->json(['cek' => $cek]);
     }
 }

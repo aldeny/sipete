@@ -16,7 +16,6 @@ class CreateBerkasPengajuansTable extends Migration
         Schema::create('berkas_pengajuans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pengajuan_id');
-            $table->foreignId('persyaratan_id');
             $table->string('file')->nullable();
             $table->timestamps();
         });

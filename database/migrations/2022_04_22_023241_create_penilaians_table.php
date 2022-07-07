@@ -17,6 +17,7 @@ class CreatePenilaiansTable extends Migration
             $table->id();
             $table->string('kode_penilaian');
             $table->foreignId('pegawai_id');
+            $table->foreignId('pengajuan_id');
             $table->double('nilai_kedisiplinan', 6, 2);
             $table->double('nilai_masa_kerja', 6, 2);
             $table->double('nilai_ketaatan', 6, 2);

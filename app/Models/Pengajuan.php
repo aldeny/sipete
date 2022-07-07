@@ -18,4 +18,9 @@ class Pengajuan extends Model
     {
         return $this->hasOne(BerkasPengajuan::class);
     }
+
+    public function penilaian()
+    {
+        return $this->hasOne(Penilaian::class);
+    }
 }

@@ -6,7 +6,7 @@
   <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
     <div class=" pt-3 pb-2 mb-3 border-bottom">
       <h1 class="h2 mb-4">Data Penilaian</h1>
-      <a href="{{ route('tambah_penilaian') }}" class="btn btn-primary btn-sm"><span data-feather="file-plus"></span> Tambah Penilaian</a>
+      {{-- <a href="{{ route('tambah_penilaian') }}" class="btn btn-primary btn-sm"><span data-feather="file-plus"></span> Tambah Penilaian</a> --}}
     </div>
     <div class="card">
       <div class="card-body">

@@ -12,14 +12,21 @@
           <h3>Syarat berkas pengajuan dibawah ini:</h3>
           <span class="text-danger">Nb: Pastikan file di jadikan 1 dan berformat .pdf</span>
           <ul>
-            @foreach ($pengajuan as $syarat)
-              <li>{{ $syarat->persyaratan->nm_syarat}}</li>
+            @foreach ($syarat as $syarat)
+              <li>{{ $syarat->nm_syarat}}</li>
             @endforeach
           </ul>
-          <div class="input-group">
-            <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload">
-            <button class="btn btn-success" type="button" id="btn-upload"><span data-feather="upload"></span> Upload</button>
-          </div>
+          <form action="{{ route('upload_berkas') }}" id="form-berkas" enctype="multipart/form-data" method="post">
+            @csrf
+            <div class="input-group">
+              <input type="hidden" name="id" id="id" value="{{ $berkas->pengajuan_id}}">
+              <input type="file" class="form-control " id="berkas" name="berkas" aria-describedby="inputGroupFileAddon04" aria-label="Upload">
+              <button class="btn btn-success" type="submit" id="btn-upload"><span data-feather="upload"></span> Upload</button>
+            </div>
+            <span class="text-danger">
+              @error('berkas') {{ $message }} @enderror
+            </span>
+          </form>
       </div>
     </div>
   </main>
@@ -71,67 +78,48 @@
 
   <!-- Menjalankan DataTables -->
   <script>
-    $(document).ready(function() {
-      $('#tbl_pengajuan').DataTable({
-        responsive : true,
-        scrollX: true,
-        language: {
-                    url: '{{ asset('json/bahsaTbl.json') }}'
-                  },
-      });
-    });
 
-    $(document).on('click', '.btn-pengajuan', function () {
-      $('#modal-pengajuan').modal('show');
-      $('.modal-title').html('Tambah Pengajuan');
-      $('.btn-save').html('Ajukan');
+    // $('#form-berkas').on('submit', function (event) {
+    //   event.preventDefault();
 
-      $("#action").val("tambah");
-    });
+    //   $.ajax({
+    //     url: "{{ route('upload_berkas') }}",
+    //     method:'post',
+    //     data: new FormData(this),
+    //     dataType: "json",
+    //     processData: false,
+    //     contentType: false,
+    //     success: function (response) {
+    //       if(response.success){
+    //         const Toast = Swal.mixin({
+    //           toast: true,
+    //           position: 'top',
+    //           showConfirmButton: false,
+    //           timer: 3000,
+    //           timerProgressBar: true,
+    //           didOpen: (toast) => {
+    //             toast.addEventListener('mouseenter', Swal.stopTimer)
+    //             toast.addEventListener('mouseleave', Swal.resumeTimer)
+    //           }
+    //         })
 
-    $('#form-pengajuan').on('submit', function (event) {
-      event.preventDefault();
-
-      if ($('#action').val() == "tambah") {
-        $.ajax({
-          url: "{{ route('tambah_pengajuan') }}",
-          method:'post',
-          data: new FormData(this),
-          dataType: "json",
-          processData: false,
-          contentType: false,
-          success: function (response) {
-            if(response.success){
-              const Toast = Swal.mixin({
-                toast: true,
-                position: 'top',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                  toast.addEventListener('mouseenter', Swal.stopTimer)
-                  toast.addEventListener('mouseleave', Swal.resumeTimer)
-                }
-              })
-
-                Toast.fire({
-                  icon: 'success',
-                  title: response.success
-                });
-            }
-            if(response.error){
-              Toast.fire({
-                  icon: 'error',
-                  title: response.errors
-              });
-            }
-            $("#id").val("");
-            $('#modal-pengajuan').modal('hide');
-            location.reload(true);
-          }
-        });
-      }
-    });
+    //           Toast.fire({
+    //             icon: 'success',
+    //             title: response.success
+    //           });
+    //       }
+    //       if(response.error){
+    //         Toast.fire({
+    //             icon: 'error',
+    //             title: response.errors
+    //         });
+    //       }
+    //       $("#id").val("");
+    //       $('#modal-pengajuan').modal('hide');
+    //       location.reload(true);
+    //     }
+    //   });
+    // });
     
     //Hapus Pegawai
     /* Jika klik hapus */

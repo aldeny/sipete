@@ -15,6 +15,7 @@
           <div class="row g-3 mb-3">
             <div class="col-sm-2">
               <label for="kode" class="form-label">Kode Penilaian</label>
+              <input type="hidden" name="pengajuan_id" id="pengajuan_id" value="{{ $pengajuan->id }}">
               <input type="text" class="form-control" id="kode" name="kode" value="{{ $kode_p }}" readonly>
               <span class="text-danger">
                 @error('kode') {{ $message }} @enderror
@@ -22,11 +23,9 @@
             </div>
             <div class="col-sm-4">
               <label for="nip" class="form-label">NIP</label>
-              <select class="select2-nip" name="nip" id="nip" data-placeholder="Pilih NIP">
-                <option selected disabled>Pilih NIP</option>
-                @foreach ($pegawai as $p)
-                  <option value="{{ $p->id }}" {{ old('nip') == $p->id ? "selected":"" }}>{{ $p->nip }} - {{ $p->nm_peg }}</option>
-                @endforeach
+              {{-- <input type="text" class="form-control" name="nip" id="nip" value="{{$pengajuan->pegawai->nip .' - '. $pengajuan->pegawai->nm_peg }}" readonly> --}}
+              <select class="form-select" name="nip" id="nip" data-placeholder="Pilih NIP">
+                <option selected value="{{ $pengajuan->pegawai->id }}" {{ old('nip') == $pengajuan->pegawai->id ? "selected":"" }}>{{ $pengajuan->pegawai->nip }} - {{ $pengajuan->pegawai->nm_peg }}</option>
               </select>
               <span class="text-danger">
                 @error('nip') {{ $message }} @enderror
@@ -114,19 +113,10 @@
             </div>
             <div class="col-sm-4"> 
               <label for="periode" class="form-label">Periode</label>
-              <select name="periode" id="periode" class="form-select">
-                <option selected disabled>Pilih Periode</option>
-                @php
-                  $awal = date('Y')-10;
-                  $now = date('Y');
-                @endphp
-                @for ($i = $now; $i > $awal; $i--)
-                  <option value="{{ $i }}">{{ $i }}</option>
-                @endfor
-              </select>
-              <span class="text-danger">
-                @error('periode') {{ $message }} @enderror
-              </span>
+              <input type="text" class="form-control" id="periode" name="periode" value="{{ $pengajuan->periode }}" readonly>
+              {{-- <select name="periode" id="periode" class="form-select">
+                <option selected disabled>{{ $pengajuan->periode }}</option>
+              </select> --}}
             </div>
             <div class="col-12">
               <button class="btn btn-primary btn-sm" type="submit"><span data-feather="save"></span> Simpan</button>

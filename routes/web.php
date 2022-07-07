@@ -64,7 +64,7 @@ Route::group(['middleware' => 'UserSession'], function () {
 
     /* Penilaian Controller */
     Route::get('penilaian', [PenilaianController::class, 'index'])->name('data_penilaian');
-    Route::get('penilaian/create', [PenilaianController::class, 'create'])->name('tambah_penilaian');
+    Route::get('penilaian/create/{id}', [PenilaianController::class, 'create']);
     Route::post('penilaian/store', [PenilaianController::class, 'store'])->name('simpan_penilaian');
     Route::get('penilaian/edit/{id}/{id_saw}', [PenilaianController::class, 'edit']);
     Route::post('penilaian/update', [PenilaianController::class, 'update'])->name('update_penilaian');
@@ -80,5 +80,15 @@ Route::group(['middleware' => 'UserSession'], function () {
     Route::get('pengajuan', [PengajuanController::class, 'index'])->name('data_pengajuan');
     Route::post('pengajuan/store', [PengajuanController::class, 'store'])->name('tambah_pengajuan');
     Route::get('pengajuan/berkas/{id}', [PengajuanController::class, 'syarat']);
+    Route::post('pengajuan/upload', [PengajuanController::class, 'uploadBerkas'])->name('upload_berkas');
+    Route::get('pengajuan/print/{id}', [PengajuanController::class, 'printHasil']);
+    //akses admin
+    Route::get('cek', [PengajuanController::class, 'adminPengajuan'])->name('pengajuanAll');
+    Route::get('cek/{id}/admin', [PengajuanController::class, 'cekberkas']);
+    /* End */
+
+    /* Profil */
+    Route::get('profil/{user:username}', [AdminController::class, 'getProfil']);
+    Route::post('profil/update', [AdminController::class, 'updateProfil'])->name('updateProfil');
     /* End */
 });

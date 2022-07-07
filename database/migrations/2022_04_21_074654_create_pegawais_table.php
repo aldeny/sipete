@@ -25,6 +25,7 @@ class CreatePegawaisTable extends Migration
             $table->string('no_npwp');
             $table->text('alamat');
             $table->string('no_telp');
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Kriteria;
 use App\Models\Pegawai;
+use App\Models\Pengajuan;
 use App\Models\Penilaian;
 use App\Models\Saw;
 use App\Models\User;
@@ -33,9 +34,8 @@ class PenilaianController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create($id)
     {
-
         /* Membuat kode penilaian otomatis */
         $awal = 'KP';
         $no_urut_penilaian = Penilaian::count();
@@ -50,9 +50,11 @@ class PenilaianController extends Controller
         $user = User::where('id', '=', session('userLogin'))->first();
 
         $pegawai = Pegawai::all();
+        $pengajuan = Pengajuan::findOrFail($id);
         return view('penilaian.create_penilaian', [
             'pegawai' => $pegawai,
             'kode_p' => $kode_p,
+            'pengajuan' => $pengajuan,
             'user' => $user
         ]);
     }
@@ -98,6 +100,7 @@ class PenilaianController extends Controller
         $store = new Penilaian;
         $store->kode_penilaian = $request->kode;
         $store->pegawai_id = $request->nip;
+        $store->pengajuan_id = $request->pengajuan_id;
         $store->nilai_kedisiplinan = $request->kedisiplinan;
         $store->nilai_masa_kerja = $request->masa_kerja;
         $store->nilai_ketaatan = $request->ketaatan;
@@ -111,6 +114,11 @@ class PenilaianController extends Controller
         $store->total_nilai = $request->total;
         $store->periode = $request->periode;
         $simpan = $store->save();
+
+        $pengajuan_id_update = $request->pengajuan_id;
+        $update_pengajuan = Pengajuan::findOrFail($pengajuan_id_update);
+        $update_pengajuan->status = 'Selesai';
+        $update_pengajuan->save();
 
         $kriteria = Kriteria::get();
         $saw = new Saw;
